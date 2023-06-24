@@ -34,7 +34,7 @@ services:
         cp -p /root/.Xauthority /tmp/.Xauthority &&
         auth=$$(xauth list | grep '${HOSTNAME}' | grep '${DISPLAY}' | head -n 1) &&
         template=$$(echo $$auth | sed -E 's/^[^ \\/]+//') &&
-        printf 'add %s%s\\n' \"$$HOSTNAME\" \"$$template\" | su ${USER} -c xauth &&
+        printf 'add %s%s\\n' \"$$HOSTNAME\" \"$$template\" | su ${USER} -c xauth >/dev/null &&
         unset auth template &&
         exec su -lw PULSE_SERVER,XAUTHORITY,DISPLAY ale
       "
