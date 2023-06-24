@@ -1,6 +1,8 @@
 services:
   bookwormify:
     image: debian:bookworm
+    stdin_open: true
+    tty: true
 
     environment:
       - PULSE_SERVER=unix:/tmp/pulseaudio.socket
