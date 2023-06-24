@@ -37,5 +37,5 @@ services:
         template=$$(echo $$auth | sed -E 's/^[^ \\/]+//') &&
         printf 'add %s%s\\n' \"$$HOSTNAME\" \"$$template\" | su ${USER} -c xauth >/dev/null &&
         unset host auth template &&
-        exec su -lw PULSE_SERVER,XAUTHORITY,DISPLAY ale
+        exec su -lw PULSE_SERVER,XAUTHORITY,DISPLAY ${USER}
       "
