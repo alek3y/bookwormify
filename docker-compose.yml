@@ -3,6 +3,7 @@ services:
     image: debian:bookworm
     stdin_open: true
     tty: true
+    shm_size: '2gb'  # Changing --shm-size on docker-run is recommended (with enough RAM)
 
     environment:
       - PULSE_SERVER=unix:/tmp/pulseaudio.socket
