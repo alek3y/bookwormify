@@ -18,6 +18,7 @@ services:
 
     devices:
       - /dev/dri:/dev/dri  # See https://github.com/mviereck/x11docker/wiki/Hardware-acceleration
+      - /dev/kvm:/dev/kvm
 
     command: >
       bash -c "
@@ -27,7 +28,7 @@ services:
           uid=$$(stat -c '%u' /root/.Xauthority) &&
           gid=$$(stat -c '%g' /root/.Xauthority) &&
           groupadd -g $$gid ${USER} &&
-          useradd -mG sudo,video,render -u $$uid -g $$gid -s /bin/bash ${USER} &&
+          useradd -mG sudo,video,render,kvm -u $$uid -g $$gid -s /bin/bash ${USER} &&
           sed -i 's/\\(%sudo.*\\)ALL$$/\\1NOPASSWD: ALL/' /etc/sudoers &&
           touch /root/setup &&
           unset uid gid;
