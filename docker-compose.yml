@@ -12,7 +12,7 @@ services:
 
     volumes:
       - ${XDG_RUNTIME_DIR}/pulse/native:/tmp/pulseaudio.socket
-      - ${HOME}/.Xauthority:/root/.Xauthority:ro
+      - ${XAUTHORITY}:/root/.Xauthority:ro
       - /tmp/.X11-unix:/tmp/.X11-unix
       - /etc/hostname:/tmp/host-hostname:ro
 
@@ -35,9 +35,14 @@ services:
         fi &&
         cp -p /root/.Xauthority /tmp/.Xauthority &&
         host=$$(cat /tmp/host-hostname) &&
-        auth=$$(xauth list | grep \"$$host\" | grep '${DISPLAY}' | head -n 1) &&
-        template=$$(echo $$auth | sed -E 's/^[^ \\/]+//') &&
-        printf 'add %s%s\\n' \"$$HOSTNAME\" \"$$template\" | su ${USER} -c xauth >/dev/null &&
-        unset host auth template &&
+        display=$$(grep -o ':\\([0-9\\.]\\+\\)$' <<< \"$DISPLAY\") &&
+        auths=$$(xauth list | grep \"$$host\") &&
+        auth=$$(
+          ((grep \"$$display\" <<< \"$$auths\") || (grep ': ' <<< \"$$auths\")) \\
+            | head -n 1 \\
+            | sed -E \"s/^[^/:]+/$$HOSTNAME/; s/: /$$display /\"
+        ) &&
+        su ${USER} -c \"xauth add $$auth\" &&
+        unset host display auths auth &&
         exec su -lw PULSE_SERVER,XAUTHORITY,DISPLAY ${USER}
       "
