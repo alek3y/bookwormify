@@ -1,6 +1,6 @@
 services:
-  bookwormify:
-    image: debian:bookworm
+  base:
+    build: .
     stdin_open: true
     tty: true
     shm_size: '2gb'  # Changing --shm-size on docker-run is recommended (with enough RAM)
@@ -23,13 +23,10 @@ services:
     command: >
       bash -c "
         if [ ! -e /root/setup ]; then
-          apt update -y &&
-          apt install -y udev xauth sudo mesa-utils{,-extra} mplayer firefox-esr &&
           uid=$$(stat -c '%u' /root/.Xauthority) &&
           gid=$$(stat -c '%g' /root/.Xauthority) &&
           groupadd -g $$gid ${USER} &&
           useradd -mG sudo,video,render,kvm -u $$uid -g $$gid -s /bin/bash ${USER} &&
-          sed -i 's/\\(%sudo.*\\)ALL$$/\\1NOPASSWD: ALL/' /etc/sudoers &&
           touch /root/setup &&
           unset uid gid;
         fi &&

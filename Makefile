@@ -1,5 +1,5 @@
 COMPOSE=docker-compose
-SERVICE=bookwormify
+SERVICE=base
 
 .PHONY = all run exposed
 
