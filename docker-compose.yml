@@ -1,6 +1,10 @@
 services:
   base:
-    build: .
+    build:
+      context: .
+      args:
+        - username=${USER}
+
     stdin_open: true
     tty: true
     shm_size: '2gb'  # Changing --shm-size on docker-run is recommended (with enough RAM)
@@ -25,14 +29,18 @@ services:
         if [ ! -e /root/setup ]; then
           uid=$$(stat -c '%u' /root/.Xauthority) &&
           gid=$$(stat -c '%g' /root/.Xauthority) &&
-          groupadd -g $$gid ${USER} &&
-          useradd -mG sudo,video,render,kvm -u $$uid -g $$gid -s /bin/bash ${USER} &&
+          groupmod -g $$gid ${USER} &&
+          usermod -u $$uid -g $$gid ${USER} >/dev/null &&
+          skel=$$(mktemp -d) &&
+          cp -r /etc/skel/. $$skel &&
+          chown -R $$uid:$$gid $$skel &&
+          cp -rnp $$skel/. /home/${USER} &&
           touch /root/setup &&
-          unset uid gid;
+          unset uid gid skel;
         fi &&
         cp -p /root/.Xauthority /tmp/.Xauthority &&
         host=$$(cat /tmp/host-hostname) &&
-        display=$$(grep -o ':\\([0-9\\.]\\+\\)$' <<< \"$DISPLAY\") &&
+        display=$$(grep -o ':\\([0-9\\.]\\+\\)$$' <<< \"$DISPLAY\") &&
         auths=$$(xauth list | grep \"$$host\") &&
         auth=$$(
           ((grep \"$$display\" <<< \"$$auths\") || (grep ': ' <<< \"$$auths\")) \\
