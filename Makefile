@@ -1,10 +1,18 @@
 COMPOSE=docker-compose
 SERVICE=base
 
-.PHONY = all run exposed
+.PHONY = all default transient isolated exposed
 
-all: run
-run:
-	$(COMPOSE) run $(SERVICE)
-exposed:
-	$(COMPOSE) run -v ${HOME}:/home/${USER} -v /tmp:/tmp/host $(SERVICE)
+all: default
+
+exposed: DFLAGS += -v ${HOME}:/home/${USER}
+exposed: default
+
+transient: DFLAGS += --rm
+transient: default
+
+default: DFLAGS += -v /tmp:/tmp
+default: isolated
+
+isolated:
+	$(COMPOSE) run $(DFLAGS) $(SERVICE)

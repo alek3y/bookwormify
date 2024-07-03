@@ -10,15 +10,14 @@ services:
     shm_size: '2gb'  # Changing --shm-size on docker-run is recommended (with enough RAM)
 
     environment:
-      - PULSE_SERVER=unix:/tmp/pulseaudio.socket
-      - XAUTHORITY=/tmp/.Xauthority
+      - PULSE_SERVER=unix:/var/tmp/pulseaudio.socket
+      - XAUTHORITY=/home/${USER}/.Xauthority
       - DISPLAY=${DISPLAY}
 
     volumes:
-      - ${XDG_RUNTIME_DIR}/pulse/native:/tmp/pulseaudio.socket
-      - ${XAUTHORITY}:/root/.Xauthority:ro
-      - /tmp/.X11-unix:/tmp/.X11-unix
-      - /etc/hostname:/tmp/host-hostname:ro
+      - ${XDG_RUNTIME_DIR}/pulse/native:/var/tmp/pulseaudio.socket
+      - ${XAUTHORITY}:/var/tmp/Xauthority:ro  # TODO: ${XAUTHORITY} could change across reboots
+      - /etc/hostname:/var/tmp/hostname:ro
 
     devices:
       - /dev/dri:/dev/dri  # See https://github.com/mviereck/x11docker/wiki/Hardware-acceleration
@@ -26,20 +25,20 @@ services:
 
     command: >
       bash -c "
-        if [ ! -e /root/setup ]; then
-          uid=$$(stat -c '%u' /root/.Xauthority) &&
-          gid=$$(stat -c '%g' /root/.Xauthority) &&
+        if [ ! -e /var/tmp/initialized ]; then
+          uid=$$(stat -c '%u' /var/tmp/Xauthority) &&
+          gid=$$(stat -c '%g' /var/tmp/Xauthority) &&
           groupmod -g $$gid ${USER} &&
           usermod -u $$uid -g $$gid ${USER} >/dev/null &&
           skel=$$(mktemp -d) &&
           cp -r /etc/skel/. $$skel &&
           chown -R $$uid:$$gid $$skel &&
           cp -rnp $$skel/. /home/${USER} &&
-          touch /root/setup &&
+          touch /var/tmp/initialized &&
           unset uid gid skel;
         fi &&
-        cp -p /root/.Xauthority /tmp/.Xauthority &&
-        host=$$(cat /tmp/host-hostname) &&
+        cp -p /var/tmp/Xauthority $$XAUTHORITY &&
+        host=$$(cat /var/tmp/hostname) &&
         display=$$(grep -o ':\\([0-9\\.]\\+\\)$$' <<< \"$DISPLAY\") &&
         auths=$$(xauth list | grep \"$$host\") &&
         auth=$$(
