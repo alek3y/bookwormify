@@ -7,9 +7,9 @@ RUN sed -i '/%sudo.*ALL$/ s/ALL$/NOPASSWD: ALL/' /etc/sudoers
 RUN sed -i '/en_US\.UTF/ s/^# *//' /etc/locale.gen
 RUN locale-gen && echo "LANG=en_US.UTF-8" >> /etc/environment
 
-RUN apt install -y mplayer firefox-esr
+RUN apt install -y mplayer firefox-esr dbus-x11
 
-RUN apt install -y binutils wget curl zip unzip apt-file vim
+RUN apt install -y binutils wget curl xz-utils zip unzip apt-file vim
 RUN apt-file update
 
 ARG username
