@@ -33,7 +33,7 @@ services:
           skel=$$(mktemp -d) &&
           cp -r /etc/skel/. $$skel &&
           chown -R $$uid:$$gid $$skel &&
-          cp -rnp $$skel/. /home/${USER} &&
+          cp -rp --update=none $$skel/. /home/${USER} &&
           touch /var/tmp/initialized &&
           unset uid gid skel;
         fi &&
