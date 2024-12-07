@@ -18,6 +18,7 @@ services:
       - ${XDG_RUNTIME_DIR}/pulse/native:/var/tmp/pulseaudio.socket
       - ${XAUTHORITY}:/var/tmp/Xauthority:ro  # TODO: ${XAUTHORITY} could change across reboots
       - /etc/hostname:/var/tmp/hostname:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix
 
     devices:
       - /dev/dri:/dev/dri  # See https://github.com/mviereck/x11docker/wiki/Hardware-acceleration
